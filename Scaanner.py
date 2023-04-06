@@ -15,9 +15,9 @@ class NewFileHandler(FileSystemEventHandler):
         elif event.event_type == 'created':
             file_path = event.src_path
             print(f'New file added: {file_path}')
-            is_malware = check_virustotal(file_path)
+            is_malware, severity = check_virustotal(file_path)
             if is_malware:
-                print(f'{file_path} is malware!')
+                print(f'{file_path} is malware with severity {severity}!')
             else:
                 print(f'{file_path} is clean!')
 
@@ -35,8 +35,22 @@ def check_virustotal(file_path):
             positives = json_response['positives']
             total = json_response['total']
             if positives > 0:
-                return True
-    return False
+                severity = get_severity(json_response)
+                return True, severity
+    return False, None
+
+def get_severity(json_response):
+    engines = json_response['scans']
+    detections = [engine for engine in engines if engines[engine]['detected']]
+    num_detections = len(detections)
+    if num_detections == 0:
+        return 'Unknown'
+    elif num_detections < 3:
+        return 'Low'
+    elif num_detections < 10:
+        return 'Medium'
+    else:
+        return 'High'
 
 def monitor_folder(folder):
     event_handler = NewFileHandler()
