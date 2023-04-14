@@ -8,7 +8,9 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import pefile
 import sys
-import pydbg
+import subprocess
+import psutil
+import pymem
 
 
 #API KEY VIRUSTOTAL
@@ -85,8 +87,8 @@ def static_malware_check(file_path):
         return False
 
     # Check if the file is marked as a DLL or an EXE
-    if (pe.FILE_HEADER.Characteristics & pefile.IMAGE_FILE_DLL) or \
-       (pe.FILE_HEADER.Characteristics & pefile.IMAGE_FILE_EXECUTABLE_IMAGE):
+    if (pe.FILE_HEADER.Characteristics & 0x2000) or \
+        (pe.FILE_HEADER.Characteristics & 0x0002):
         # Check if the file has a debug directory
         if hasattr(pe, 'DIRECTORY_ENTRY_DEBUG'):
             return True
@@ -125,42 +127,46 @@ def check_api_calls(dbg, args):
 
 # Define the main function to perform dynamic analysis
 def dynamic_malware_check(file_path):
-    # Load the PE file
-    try:
-        pe = pefile.PE(file_path)
-    except pefile.PEFormatError:
-        # The file is not a valid PE file
-        return SEVERITY_LEVELS[0]
+    # Execute the file and monitor its behavior
+    process = subprocess.Popen([file_path])
+    pid = process.pid
+    p = psutil.Process(pid)
+    mem = pymem.Pymem(pid)
 
-    # Check if the file is marked as a DLL or an EXE
-    if (pe.FILE_HEADER.Characteristics & pefile.IMAGE_FILE_DLL) or \
-       (pe.FILE_HEADER.Characteristics & pefile.IMAGE_FILE_EXECUTABLE_IMAGE):
-        # Initialize the severity level to 0
-        global severity_level
-        severity_level = 0
+    # Monitor process memory and API calls
+    num_suspicious_activities = 0
+    for _ in range(100):
+        try:
+            # Check for suspicious API calls
+            for call in p.connections(kind='all'):
+                if call.status == 'ESTABLISHED':
+                    num_suspicious_activities += 1
+                    break
+            
+            # Check for suspicious memory activity
+            if p.status() == psutil.STATUS_RUNNING:
+                mem_data = mem.read_bytes(mem.process_base.lpBaseOfDll, mem.process_base.SizeOfImage)
+                if b'CreateProcess' in mem_data or \
+                   b'WriteProcessMemory' in mem_data or \
+                   b'VirtualAlloc' in mem_data:
+                    num_suspicious_activities += 1
 
-        # Create a Pydbg instance and attach it to the process
-        dbg = pydbg.pydbg()
-        pid = dbg.load(file_path)
-        dbg.attach(pid)
+            # Check for suspicious memory activity
+            mem_data = mem.read_bytes(mem.process_base.lpBaseOfDll, mem.process_base.SizeOfImage)
+            if b'CreateProcess' in mem_data or \
+               b'WriteProcessMemory' in mem_data or \
+               b'VirtualAlloc' in mem_data:
+                num_suspicious_activities += 1
 
-        # Set a breakpoint on all API calls
-        for func in pydbg.defines.ALL_APIS:
-            dbg.func_resolve(func)
-            dbg.set_callback(pydbg.defines.WINFUNCTYPE(None, pydbg.pydbg, ctypes.c_void_p))(check_api_calls)
+            # If multiple suspicious activities are detected, assume the file is malware
+            if num_suspicious_activities >= 2:
+                return "High Severity Malware"
+        except psutil.NoSuchProcess:
+            # The process has terminated
+            break
 
-        # Run the process and monitor its behavior
-        dbg.run()
-
-        # Detach the debugger and kill the process
-        dbg.detach()
-        os.kill(pid, 0)
-
-        # Return the severity level based on the behavior observed during execution
-        return SEVERITY_LEVELS[severity_level]
-    else:
-        # If the file is not marked as a DLL or an EXE, it is not malware
-        return SEVERITY_LEVELS[0]
+    # If no suspicious activities were detected, assume the file is not malware
+    return "Not Malware"
     
 
 def monitor_folder(folder):
