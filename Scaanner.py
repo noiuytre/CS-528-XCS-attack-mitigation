@@ -138,7 +138,7 @@ def dynamic_malware_check(file_path):
     for _ in range(100):
         try:
             # Check for suspicious API calls
-            for call in p.connections(kind='all'):
+            for call in p.connections(kind='inet'):
                 if call.status == 'ESTABLISHED':
                     num_suspicious_activities += 1
                     break
