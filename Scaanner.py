@@ -36,16 +36,22 @@ class NewFileHandler(FileSystemEventHandler):
             is_malware, severity = check_virustotal(file_path)
             if is_malware:
                 print(f'{file_path} is malware with severity {severity}! via virustotal')
+                os.remove (file_path)
             else:
                 print(f'{file_path} is clean! via virustotal')
 
             static_malware = static_malware_check(file_path)
             if static_malware:
                 print(f'{file_path} is a malware! via static analysis')
+                os.remove (file_path)
             else:
                 print(f'{file_path} is clean! via static analysis')
             dynamic_malware = dynamic_malware_check(file_path)
             print(f'{file_path} checked it is {dynamic_malware}! via dynamic analysis')
+            if dynamic_malware != "Not Malware":
+                print(f'{file_path} is a malware! via dynamic analysis') 
+                os.remove (file_path)
+
 
 def check_virustotal(file_path):
     with open(file_path, 'rb') as f:
