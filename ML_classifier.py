@@ -1,5 +1,3 @@
-# For testing if a file is a probable malware of not!
-
 import array
 import math
 import os
