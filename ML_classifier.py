@@ -18,9 +18,11 @@ class NewFileHandler(FileSystemEventHandler):
             print(f'New file added: {file_path}')
             legitimate = checkFile(file_path)
         if legitimate:
-            print(f"File {sys.argv[1]} seems legitimate file!")
+            print(f"File {file_path} seems legitimate file!")
         else:
-            print(f"File {sys.argv[1]} is probably a MALWARE!!!")
+            print(f"File {file_path} is probably a MALWARE!!!")
+            os.remove (file_path)
+
             
 
 def get_entropy(data):
