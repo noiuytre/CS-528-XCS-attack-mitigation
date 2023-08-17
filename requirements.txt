@@ -1,7 +1,7 @@
 asn1crypto==1.5.1
 attrs==22.2.0
 Brlapi==0.8.4
-certifi==2022.9.24
+certifi==2023.7.22
 chardet==5.1.0
 charset-normalizer==3.0.1
 contourpy==1.0.7
