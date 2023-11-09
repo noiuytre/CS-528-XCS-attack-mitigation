@@ -14,7 +14,7 @@ import pymem
 
 
 #API KEY VIRUSTOTAL
-API_KEY = '9b0420a6d701b2c5d987a2117c3041527466ef0396a2b3517a3440ee6c04916a'
+API_KEY = ''
 # Define the known malicious APIs
 MALICIOUS_APIS = ['CreateProcess', 'WriteMemory', 'VirtualAlloc']
 
