@@ -15,7 +15,7 @@ docker-compose==1.29.2
 dockerpty==0.4.1
 docopt==0.6.2
 fonttools==4.39.3
-future==0.18.2
+future==0.18.3
 html5lib==1.1
 idna==3.3
 joblib==1.2.0
@@ -31,7 +31,7 @@ numpy==1.24.2
 onboard==1.4.1
 packaging==23.1
 pefile==2023.2.7
-Pillow==9.5.0
+Pillow==10.0.1
 protobuf==4.21.12
 pycairo==1.20.1
 PyGObject==3.42.2
@@ -52,7 +52,7 @@ sklearn==0.0.post4
 texttable==1.6.7
 threadpoolctl==3.1.0
 uritemplate==4.1.1
-urllib3==1.26.12
+urllib3==1.26.18
 webcolors==1.11.1
 webencodings==0.5.1
 websocket-client==1.2.3
