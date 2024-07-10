@@ -57,3 +57,4 @@ webcolors==1.11.1
 webencodings==0.5.1
 websocket-client==1.2.3
 xdg==5
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
