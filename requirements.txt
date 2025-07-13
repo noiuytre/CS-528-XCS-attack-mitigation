@@ -32,7 +32,7 @@ onboard==1.4.1
 packaging==23.1
 pefile==2023.2.7
 Pillow==10.0.1
-protobuf==4.21.12
+protobuf==4.25.8
 pycairo==1.20.1
 PyGObject==3.42.2
 pyparsing==3.0.9
@@ -52,7 +52,7 @@ sklearn==0.0.post4
 texttable==1.6.7
 threadpoolctl==3.1.0
 uritemplate==4.1.1
-urllib3==1.26.19
+urllib3==2.5.0
 webcolors==1.11.1
 webencodings==0.5.1
 websocket-client==1.2.3
